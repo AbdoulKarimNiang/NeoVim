@@ -42,27 +42,45 @@ local plugins = {
     end,
   },
 
-  -- File explorer
+  -- File explorer - Yazi
   {
-    "nvim-tree/nvim-tree.lua",
-    dependencies = { "nvim-tree/nvim-web-devicons" },
-    config = function()
-      require("nvim-tree").setup({
-        sort_by = "case_sensitive",
-        view = {
-          width = 30,
-        },
-        renderer = {
-          group_empty = true,
-        },
-        filters = {
-          dotfiles = true,
-        },
-      })
-      vim.keymap.set("n", "<leader>e", "<cmd>NvimTreeToggle<CR>", { desc = "Toggle file explorer" })
-    end,
-  },
+    "mikavilpas/yazi.nvim",
+    event = "VeryLazy",
+    dependencies = {
+      "nvim-lua/plenary.nvim",
+    },
+    keys = {
+      {
+        "<leader>e",
+        "<cmd>Yazi<cr>",
+        desc = "Open yazi file explorer",
+      },
+      {
+        "<leader>E",
+        "<cmd>Yazi cwd<cr>",
+        desc = "Open yazi at working directory",
+      },
+    },
+    opts = {
+      open_for_directories = false,
+      floating_window_scaling_factor = 0.9,
+      yazi_floating_window_winblend = 0,
 
+      -- Integration with telescope
+      integrations = {
+        grep_in_directory = function(directory)
+          require("telescope.builtin").live_grep({
+            search_dirs = { directory },
+          })
+        end,
+        find_in_directory = function(directory)
+          require("telescope.builtin").find_files({
+            cwd = directory,
+          })
+        end,
+      },
+    },
+  },
   -- Fuzzy finder
   {
     "nvim-telescope/telescope.nvim",
@@ -211,7 +229,7 @@ local plugins = {
     config = function()
       require("which-key").setup()
 
-local wk = require("which-key")
+      local wk = require("which-key")
       wk.add({
         { "<leader>c", group = "[C]ode" },
         { "<leader>c_", hidden = true },
@@ -225,6 +243,24 @@ local wk = require("which-key")
         { "<leader>w_", hidden = true },
       })
 
+    end,
+  },
+
+  -- Jupyter Notebook support
+  {
+    "benlubas/molten-nvim",
+    version = "^1.0.0",
+    build = ":UpdateRemotePlugins",
+    ft = { "python", "jupyter" }, -- Only load for Python and Jupyter files
+    init = function()
+      -- Molten configuration
+      vim.g.molten_image_provider = "none"
+      vim.g.molten_output_win_max_height = 20
+      vim.g.molten_auto_open_output = false
+      vim.g.molten_wrap_output = true
+      vim.g.molten_virt_text_output = true
+      vim.g.molten_virt_lines_off_by_1 = true
+      vim.g.molten_use_border_highlights = true
     end,
   },
 

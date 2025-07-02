@@ -44,20 +44,11 @@ keymap("n", "<C-u>", "<C-u>zz")
 keymap("n", "n", "nzzzv")
 keymap("n", "N", "Nzzzv")
 
--- File explorer
-keymap("n", "<leader>e", "<cmd>Explore<CR>", { desc = "Open file explorer" })
-
 -- Split windows
 keymap("n", "<leader>sv", "<C-w>v", { desc = "Split window vertically" })
 keymap("n", "<leader>sh", "<C-w>s", { desc = "Split window horizontally" })
 keymap("n", "<leader>se", "<C-w>=", { desc = "Make splits equal size" })
 keymap("n", "<leader>sx", "<cmd>close<CR>", { desc = "Close current split" })
-
--- Tab management
-keymap("n", "<leader>to", "<cmd>tabnew<CR>", { desc = "Open new tab" })
-keymap("n", "<leader>tx", "<cmd>tabclose<CR>", { desc = "Close current tab" })
-keymap("n", "<leader>tn", "<cmd>tabn<CR>", { desc = "Go to next tab" })
-keymap("n", "<leader>tp", "<cmd>tabp<CR>", { desc = "Go to previous tab" })
 
 -- Terminal
 keymap("n", "<leader>tt", "<cmd>terminal<CR>", { desc = "Open terminal" })
@@ -80,3 +71,40 @@ keymap("n", "[d", vim.diagnostic.goto_prev, { desc = "Go to previous diagnostic 
 keymap("n", "]d", vim.diagnostic.goto_next, { desc = "Go to next diagnostic message" })
 keymap("n", "<leader>de", vim.diagnostic.open_float, { desc = "Open floating diagnostic message" })
 keymap("n", "<leader>dl", vim.diagnostic.setloclist, { desc = "Open diagnostics list" })
+
+-- File manager keymaps (Yazi)
+keymap("n", "<C-n>", "<cmd>Yazi<cr>", { desc = "Toggle Yazi file manager", silent = true })
+
+-- Alternative file explorer mappings
+keymap("n", "<leader>fe", "<cmd>Yazi<cr>", { desc = "File explorer (Yazi)", silent = true })
+keymap("n", "<leader>fE", "<cmd>Yazi cwd<cr>", { desc = "File explorer at cwd", silent = true })
+
+-- Open yazi with visual selection (useful for opening specific paths)
+keymap("x", "<leader>e", "<cmd>Yazi<cr>", { desc = "Open yazi with selection", silent = true })
+
+-- Quick directory navigation
+keymap("n", "<leader>cd", function()
+  vim.cmd("Yazi " .. vim.fn.expand("%:p:h"))
+end, { desc = "Open yazi in current file directory", silent = true })
+
+-- Project root navigation (if you have a root finder function)
+keymap("n", "<leader>pr", function()
+  local root = vim.fs.find({ ".git", "package.json", "Cargo.toml", "pyproject.toml" }, { upward = true })[1]
+  if root then
+    local project_root = vim.fn.fnamemodify(root, ":h")
+    vim.cmd("Yazi " .. project_root)
+  else
+    vim.cmd("Yazi cwd")
+  end
+end, { desc = "Open yazi at project root", silent = true })
+
+-- Molten (Jupyter) keymaps
+keymap("n", "<leader>mi", "<cmd>MoltenInit<CR>", { desc = "Initialize Molten" })
+keymap("n", "<leader>me", "<cmd>MoltenEvaluateOperator<CR>", { desc = "Evaluate operator" })
+keymap("n", "<leader>ml", "<cmd>MoltenEvaluateLine<CR>", { desc = "Evaluate line" })
+keymap("n", "<leader>mr", "<cmd>MoltenReevaluateCell<CR>", { desc = "Re-evaluate cell" })
+keymap("v", "<leader>mv", ":<C-u>MoltenEvaluateVisual<CR>gv", { desc = "Evaluate visual selection" })
+keymap("n", "<leader>mh", "<cmd>MoltenHideOutput<CR>", { desc = "Hide output" })
+keymap("n", "<leader>ms", "<cmd>MoltenShowOutput<CR>", { desc = "Show output" })
+keymap("n", "<leader>md", "<cmd>MoltenDelete<CR>", { desc = "Delete Molten cell" })
+keymap("n", "<leader>mo", "<cmd>MoltenOpenInBrowser<CR>", { desc = "Open in browser" })

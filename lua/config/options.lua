@@ -49,6 +49,8 @@ opt.backup = false
 opt.writebackup = false
 opt.swapfile = false
 opt.undofile = true
+opt.confirm = true
+opt.hidden = false
 
 -- Completion
 opt.completeopt = "menu,menuone,noselect"
@@ -88,3 +90,6 @@ opt.listchars = { tab = "» ", trail = "·", nbsp = "␣" }
 
 -- Preview substitutions live, as you type!
 opt.inccommand = "split"
+
+-- Enable hex, octal, and binary number recognition
+opt.nrformats = "bin,hex,octal"
