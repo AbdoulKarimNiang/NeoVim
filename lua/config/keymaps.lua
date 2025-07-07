@@ -108,3 +108,17 @@ keymap("n", "<leader>mh", "<cmd>MoltenHideOutput<CR>", { desc = "Hide output" })
 keymap("n", "<leader>ms", "<cmd>MoltenShowOutput<CR>", { desc = "Show output" })
 keymap("n", "<leader>md", "<cmd>MoltenDelete<CR>", { desc = "Delete Molten cell" })
 keymap("n", "<leader>mo", "<cmd>MoltenOpenInBrowser<CR>", { desc = "Open in browser" })
+
+-- Folding keymaps (works for JSON, code, etc.)
+keymap("n", "za", "za", { desc = "Toggle fold" })
+keymap("n", "zA", "zA", { desc = "Toggle fold recursively" })
+keymap("n", "zo", "zo", { desc = "Open fold" })
+keymap("n", "zc", "zc", { desc = "Close fold" })
+keymap("n", "zR", "zR", { desc = "Open all folds" })
+keymap("n", "zM", "zM", { desc = "Close all folds" })
+keymap("n", "zr", "zr", { desc = "Reduce fold level" })
+keymap("n", "zm", "zm", { desc = "Increase fold level" })
+
+-- JSON specific keymaps
+keymap("n", "<leader>jf", "<cmd>%!jq .<CR>", { desc = "Format JSON with jq" })
+keymap("n", "<leader>jc", "<cmd>%!jq -c .<CR>", { desc = "Compact JSON" })

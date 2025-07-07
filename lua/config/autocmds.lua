@@ -104,3 +104,23 @@ api.nvim_create_autocmd("BufReadPost", {
     end
   end,
 })
+
+-- JSON folding and formatting
+api.nvim_create_autocmd("FileType", {
+  desc = "JSON specific settings",
+  group = api.nvim_create_augroup("json-settings", { clear = true }),
+  pattern = { "json", "jsonc" },
+  callback = function()
+    -- Enable folding
+    vim.opt_local.foldmethod = "syntax"
+    vim.opt_local.foldlevel = 2
+
+    -- Better indentation
+    vim.opt_local.shiftwidth = 2
+    vim.opt_local.tabstop = 2
+    vim.opt_local.softtabstop = 2
+
+    -- Conceal quotes for cleaner look
+    vim.opt_local.conceallevel = 0
+  end,
+})
