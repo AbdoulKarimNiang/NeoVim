@@ -1,171 +1,144 @@
--- lua/plugins/lsp.lua
-return {
-  -- LSP Configuration
-  {
-    "neovim/nvim-lspconfig",
-    event = { "BufReadPre", "BufNewFile" },
-    dependencies = {
-      "mason.nvim",
-      "williamboman/mason-lspconfig.nvim",
-      "hrsh7th/cmp-nvim-lsp",
+return { -- Autocompletion
+  'hrsh7th/nvim-cmp',
+  -- event = 'InsertEnter',
+  dependencies = {
+    -- Snippet Engine & its associated nvim-cmp source
+    {
+      'L3MON4D3/LuaSnip',
+      build = (function()
+        -- Build Step is needed for regex support in snippets
+        -- This step is not supported in many windows environments
+        -- Remove the below condition to re-enable on windows
+        if vim.fn.has 'win32' == 1 or vim.fn.executable 'make' == 0 then
+          return
+        end
+        return 'make install_jsregexp'
+      end)(),
     },
-    config = function()
-      local lspconfig = require("lspconfig")
-      local mason_lspconfig = require("mason-lspconfig")
-      local cmp_nvim_lsp = require("cmp_nvim_lsp")
+    'saadparwaiz1/cmp_luasnip',
 
-      local capabilities = cmp_nvim_lsp.default_capabilities()
+    -- Adds other completion capabilities.
+    --  nvim-cmp does not ship with all sources by default. They are split
+    --  into multiple repos for maintenance purposes.
+    'hrsh7th/cmp-nvim-lsp',
+    'hrsh7th/cmp-buffer',
+    'hrsh7th/cmp-path',
 
-      -- LSP Keymaps
-      local on_attach = function(client, bufnr)
-        local opts = { noremap = true, silent = true, buffer = bufnr }
-        local keymap = vim.keymap.set
-
-        keymap("n", "gD", vim.lsp.buf.declaration, opts)
-        keymap("n", "gd", vim.lsp.buf.definition, opts)
-        keymap("n", "K", vim.lsp.buf.hover, opts)
-        keymap("n", "gi", vim.lsp.buf.implementation, opts)
-        keymap("n", "<C-k>", vim.lsp.buf.signature_help, opts)
-        keymap("n", "<leader>rn", vim.lsp.buf.rename, opts)
-        keymap("n", "<leader>ca", vim.lsp.buf.code_action, opts)
-        keymap("n", "gr", vim.lsp.buf.references, opts)
-        keymap("n", "<leader>f", function()
-          vim.lsp.buf.format({ async = true })
-        end, opts)
-        keymap("n", "gl", vim.diagnostic.open_float, opts)
-        keymap("n", "[d", vim.diagnostic.goto_prev, opts)
-        keymap("n", "]d", vim.diagnostic.goto_next, opts)
-        keymap("n", "<leader>q", vim.diagnostic.setloclist, opts)
-      end
-
-      -- Configure diagnostic display
-      vim.diagnostic.config({
-        virtual_text = true,
-        signs = true,
-        underline = true,
-        update_in_insert = false,
-        severity_sort = true,
-      })
-
-      -- Set up Mason handlers
-      mason_lspconfig.setup_handlers({
-        -- Default handler for all servers
-        function(server_name)
-          lspconfig[server_name].setup({
-            capabilities = capabilities,
-            on_attach = on_attach,
-          })
-        end,
-
-        -- Custom configurations for specific servers
-        ["lua_ls"] = function()
-          lspconfig.lua_ls.setup({
-            capabilities = capabilities,
-            on_attach = on_attach,
-            settings = {
-              Lua = {
-                diagnostics = {
-                  globals = { "vim" },
-                },
-                workspace = {
-                  library = {
-                    [vim.fn.expand("$VIMRUNTIME/lua")] = true,
-                    [vim.fn.stdpath("config") .. "/lua"] = true,
-                  },
-                },
-              },
-            },
-          })
-        end,
-
-        ["pyright"] = function()
-          lspconfig.pyright.setup({
-            capabilities = capabilities,
-            on_attach = on_attach,
-            settings = {
-              python = {
-                analysis = {
-                  typeCheckingMode = "basic",
-                  autoSearchPaths = true,
-                  useLibraryCodeForTypes = true,
-                },
-              },
-            },
-          })
-        end,
-
-        ["tsserver"] = function()
-          lspconfig.tsserver.setup({
-            capabilities = capabilities,
-            on_attach = on_attach,
-            filetypes = {
-              "javascript",
-              "javascriptreact",
-              "javascript.jsx",
-              "typescript",
-              "typescriptreact",
-              "typescript.tsx",
-            },
-          })
-        end,
-
-        ["rust_analyzer"] = function()
-          lspconfig.rust_analyzer.setup({
-            capabilities = capabilities,
-            on_attach = on_attach,
-            settings = {
-              ["rust-analyzer"] = {
-                checkOnSave = {
-                  command = "clippy",
-                },
-              },
-            },
-          })
-        end,
-
-        ["powershell_es"] = function()
-          lspconfig.powershell_es.setup({
-            capabilities = capabilities,
-            on_attach = on_attach,
-            bundle_path = vim.fn.stdpath("data") .. "/mason/packages/powershell-editor-services",
-          })
-        end,
-      })
-    end,
+    -- Adds a number of user-friendly snippets
+    'rafamadriz/friendly-snippets',
   },
+  config = function()
+    local cmp = require 'cmp'
+    require('luasnip.loaders.from_vscode').lazy_load()
+    local luasnip = require 'luasnip'
+    luasnip.config.setup {}
 
-  -- Mason - LSP installer
-  {
-    "williamboman/mason.nvim",
-    cmd = "Mason",
-    config = function()
-      require("mason").setup({
-        ui = {
-          icons = {
-            package_installed = "✓",
-            package_pending = "➜",
-            package_uninstalled = "✗",
-          },
-        },
-      })
-    end,
-  },
+    local kind_icons = {
+      Text = '󰉿',
+      Method = 'm',
+      Function = '󰊕',
+      Constructor = '',
+      Field = '',
+      Variable = '󰆧',
+      Class = '󰌗',
+      Interface = '',
+      Module = '',
+      Property = '',
+      Unit = '',
+      Value = '󰎠',
+      Enum = '',
+      Keyword = '󰌋',
+      Snippet = '',
+      Color = '󰏘',
+      File = '󰈙',
+      Reference = '',
+      Folder = '󰉋',
+      EnumMember = '',
+      Constant = '󰇽',
+      Struct = '',
+      Event = '',
+      Operator = '󰆕',
+      TypeParameter = '󰊄',
+    }
 
-  -- Mason LSPConfig bridge
-  {
-    "williamboman/mason-lspconfig.nvim",
-    dependencies = { "mason.nvim" },
-    config = function()
-      require("mason-lspconfig").setup({
-        ensure_installed = {
-          "lua_ls",        -- Lua
-          "pyright",       -- Python
-          "tsserver",      -- JavaScript/TypeScript
-          "rust_analyzer", -- Rust
-          "powershell_es", -- PowerShell
-        },
-        automatic_installation = true,
-      })
-    end,
-  },
+    cmp.setup {
+      snippet = {
+        expand = function(args)
+          luasnip.lsp_expand(args.body)
+        end,
+      },
+      completion = { completeopt = 'menu,menuone,noinsert' },
+      -- window = {
+      --     completion = cmp.config.window.bordered(),
+      --     documentation = cmp.config.window.bordered(),
+      -- },
+      mapping = cmp.mapping.preset.insert {
+        ['<C-j>'] = cmp.mapping.select_next_item(),       -- Select the [n]ext item
+        ['<C-k>'] = cmp.mapping.select_prev_item(),       -- Select the [p]revious item
+        ['<CR>'] = cmp.mapping.confirm { select = true }, -- Accept the completion with Enter.
+        ['<C-c>'] = cmp.mapping.complete {},              -- Manually trigger a completion from nvim-cmp.
+
+        -- Think of <c-l> as moving to the right of your snippet expansion.
+        --  So if you have a snippet that's like:
+        --  function $name($args)
+        --    $body
+        --  end
+        --
+        -- <c-l> will move you to the right of each of the expansion locations.
+        -- <c-h> is similar, except moving you backwards.
+        ['<C-l>'] = cmp.mapping(function()
+          if luasnip.expand_or_locally_jumpable() then
+            luasnip.expand_or_jump()
+          end
+        end, { 'i', 's' }),
+        ['<C-h>'] = cmp.mapping(function()
+          if luasnip.locally_jumpable(-1) then
+            luasnip.jump(-1)
+          end
+        end, { 'i', 's' }),
+
+        -- Select next/previous item with Tab / Shift + Tab
+        ['<Tab>'] = cmp.mapping(function(fallback)
+          if cmp.visible() then
+            cmp.select_next_item()
+          elseif luasnip.expand_or_locally_jumpable() then
+            luasnip.expand_or_jump()
+          else
+            fallback()
+          end
+        end, { 'i', 's' }),
+        ['<S-Tab>'] = cmp.mapping(function(fallback)
+          if cmp.visible() then
+            cmp.select_prev_item()
+          elseif luasnip.locally_jumpable(-1) then
+            luasnip.jump(-1)
+          else
+            fallback()
+          end
+        end, { 'i', 's' }),
+      },
+      sources = {
+        { name = 'nvim_lsp' },
+        { name = 'luasnip' },
+        { name = 'buffer' },
+        { name = 'path' },
+      },
+      formatting = {
+        fields = { 'kind', 'abbr', 'menu' },
+        format = function(entry, vim_item)
+          -- Kind icons
+          vim_item.kind = string.format('%s', kind_icons[vim_item.kind])
+          -- vim_item.kind = string.format('%s %s', kind_icons[vim_item.kind], vim_item.kind) -- This concatonates the icons with the name of the item kind
+          vim_item.menu = ({
+            nvim_lsp = '[LSP]',
+            luasnip = '[Snippet]',
+            buffer = '[Buffer]',
+            path = '[Path]',
+          })[entry.source.name]
+          return vim_item
+        end,
+      },
+    }
+  end,
 }
+

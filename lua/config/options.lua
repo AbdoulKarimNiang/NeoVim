@@ -93,3 +93,11 @@ opt.inccommand = "split"
 
 -- Enable hex, octal, and binary number recognition
 opt.nrformats = "bin,hex,octal"
+
+-- Encoding settings
+vim.opt.encoding = "utf-8"
+vim.opt.fileencoding = "utf-8"
+
+-- Enable better display of special characters
+vim.opt.conceallevel = 0
+vim.opt.concealcursor = ""
